@@ -366,3 +366,23 @@ import Testing
     #expect(currentMacStore.supportsWorkspaceReadStateActions)
     #expect(currentMacStore.supportsWorkspaceCloseActions)
 }
+
+@MainActor
+@Test func unsupportedTerminalFidelityStillSubscribesRenderGridOnly() async throws {
+    let clock = TestClock()
+    let router = LivenessHostRouter()
+    let box = TransportBox()
+    await router.setCapabilities(["events.v1", "terminal.bytes.v1", "terminal.replay.v1"])
+    await router.setTerminalFidelity("ghostty_bytes")
+
+    let store = try await makeConnectedStore(router: router, box: box, clock: clock)
+
+    #expect(
+        store.debugTerminalEventTopicsForTesting() == [
+            "workspace.updated",
+            "terminal.render_grid",
+            "notification.dismissed",
+            "notification.badge",
+        ]
+    )
+}

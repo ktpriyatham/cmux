@@ -80,6 +80,7 @@ actor LivenessHostRouter {
     private var hasActiveSubscription = false
     private var heldContinuations: [CheckedContinuation<Void, Never>] = []
     private var capabilities = ["events.v1", "terminal.render_grid.v1", "terminal.replay.v1"]
+    private var terminalFidelity = "render_grid"
 
     func record(method: String?, topics: [String]?) {
         recorded.append(RecordedRequest(method: method, topics: topics))
@@ -91,6 +92,10 @@ actor LivenessHostRouter {
 
     func setCapabilities(_ capabilities: [String]) {
         self.capabilities = capabilities
+    }
+
+    func setTerminalFidelity(_ terminalFidelity: String) {
+        self.terminalFidelity = terminalFidelity
     }
 
     /// Hold every `mobile.events.subscribe` response until released.
@@ -170,7 +175,7 @@ actor LivenessHostRouter {
                 return nil
             }
             return try? Self.resultFrame(id: id, result: [
-                "terminal_fidelity": "render_grid",
+                "terminal_fidelity": terminalFidelity,
                 "capabilities": capabilities,
             ])
         case "mobile.events.subscribe":

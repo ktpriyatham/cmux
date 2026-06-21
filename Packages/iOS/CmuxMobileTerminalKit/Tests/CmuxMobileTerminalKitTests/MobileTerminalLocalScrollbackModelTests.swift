@@ -121,6 +121,29 @@ import Testing
     #expect(scroll.rowOffset == 1634)
 }
 
+@Test func topEdgeOfDefaultReplayWindowRequestsHostHydration() {
+    var model = MobileTerminalLocalScrollbackModel()
+    _ = model.applyMetadata(activeScreen: .primary, scrollbackRows: MobileTerminalScrollbackBudget.defaultReplayRows)
+    _ = model.updateBounds(
+        total: UInt64(MobileTerminalScrollbackBudget.defaultReplayRows + 48),
+        len: 48
+    )
+
+    _ = model.applyGesture(rowDelta: Double(MobileTerminalScrollbackBudget.defaultReplayRows) - 2)
+
+    #expect(model.requestsHostHydrationForGesture(rowDelta: 3))
+}
+
+@Test func smallCompleteReplayWindowDoesNotRequestMoreHostHistoryAtTop() {
+    var model = MobileTerminalLocalScrollbackModel()
+    _ = model.applyMetadata(activeScreen: .primary, scrollbackRows: 12)
+    _ = model.updateBounds(total: 60, len: 48)
+
+    _ = model.applyGesture(rowDelta: 12)
+
+    #expect(model.requestsHostHydrationForGesture(rowDelta: 1) == false)
+}
+
 @Test func oneRowMirrorAccountingSlackDoesNotMarkReplayTruncated() {
     var model = MobileTerminalLocalScrollbackModel(
         mirrorRetentionPolicy: .init(accountingSlackRows: 1)

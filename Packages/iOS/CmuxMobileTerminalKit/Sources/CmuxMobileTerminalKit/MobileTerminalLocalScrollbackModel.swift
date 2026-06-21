@@ -166,6 +166,16 @@ public struct MobileTerminalLocalScrollbackModel: Equatable, Sendable {
         activeScreen == .primary && mirrorHydration.requiresHostHydration
     }
 
+    public func requestsHostHydrationForGesture(rowDelta: Double) -> Bool {
+        guard activeScreen == .primary,
+              canServePrimaryScrollLocally,
+              replayWindow.scrollbackRows >= replayWindow.mirrorBudget.defaultReplayRows,
+              rowDelta > 0 else {
+            return false
+        }
+        return rowOffset - rowDelta <= 0
+    }
+
     private let bottomAnchorPolicy: BottomAnchorPolicy
     private let mirrorRetentionPolicy: MirrorRetentionPolicy
 

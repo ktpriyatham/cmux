@@ -1921,11 +1921,14 @@ public final class GhosttySurfaceView: UIView, TerminalSurfaceHosting {
         let cell = pendingScrollCell
         pendingScrollLines = 0
         pendingLocalScrollPixels = 0
+        let cellHeightPx = max(Double(cellPixelSize.height), 1)
+        let rowDelta = pixelDeltaY / cellHeightPx
         let scrollDecision = scrollForwardingPolicy.decision(
             activeScreen: activeScreen,
             decouplePrimaryScreenScroll: decouplePrimaryScreenScroll,
             localMirrorCanServePrimaryScroll: localScrollbackModel.canServePrimaryScrollLocally,
-            localMirrorRequiresHydration: localScrollbackModel.requiresHostScrollHydration
+            localMirrorRequiresHydration: localScrollbackModel.requiresHostScrollHydration,
+            localMirrorRequestsMoreScrollback: localScrollbackModel.requestsHostHydrationForGesture(rowDelta: rowDelta)
         )
         #if DEBUG
         let now = CACurrentMediaTime()
